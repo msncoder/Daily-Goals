@@ -10,6 +10,13 @@ function App() {
   const [task, setTask] = useState(initialArr);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [editableIndex, setEditableIndex] = useState(null);
+
+  const updateTask = (index) => {
+    setEditableIndex(index);
+    setTitle(task[index].title);
+    setDescription(task[index].description);
+  };
 
   const deleteTask = (index) => {
     const filteredArr = task.filter((value, i) => {
@@ -23,15 +30,32 @@ function App() {
   }, [task]);
 
   const submission = (e) => {
-    e.preventDefault(
-      setTask(
-        [...task, { title, description }],
-        setTitle(""),
-        setDescription("")
-      )
-    );
+    // e.preventDefault(
+    //   setTask(
+    //     [...task, { title, description }],
+    //     setTitle(""),
+    //     setDescription("")
+    //   )
+    // );
+    e.preventDefault();
+
+    if (editableIndex !== null) {
+      // Update existing task
+      const updatedTasks = [...task];
+      updatedTasks[editableIndex] = { title, description };
+      setTask(updatedTasks);
+      setEditableIndex(null);
+    } else {
+      // Add new task
+      setTask([...task, { title, description }]);
+    }
+
+    setTitle("");
+    setDescription("");
   };
+
   // console.log([...task, { title, description }]);
+
   return (
     <div>
       <Header />
@@ -50,7 +74,9 @@ function App() {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         ></textarea>
-        <button type="submit">Add</button>
+        <button type="submit">
+          {editableIndex !== null ? "Update" : "Add"}
+        </button>
       </form>
 
       {task.map((item, index) => (
@@ -60,6 +86,7 @@ function App() {
           description={item.description}
           deleteTask={deleteTask}
           index={index}
+          startEdits={updateTask}
         />
       ))}
     </div>
